@@ -15,8 +15,8 @@ void Led_Cycle(void)
     LedDigital_IO_Init();
     Timer1Init();
     
-    LATGbits.LATG8 = 1; // start cycle with different bit
-    LATGbits.LATG9 = 1;
+    LATFbits.LATF4 = 0; // red
+    LATFbits.LATF5 = 0;
 }
 
 void LedDigital_IO_Init(void)
