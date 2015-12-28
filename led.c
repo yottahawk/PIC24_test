@@ -9,6 +9,7 @@
 
 //initialisations
 int counter1 = 0;
+int threshold =  512;
 
 void Led_Cycle(void)
 {
@@ -21,7 +22,7 @@ void Led_Cycle(void)
 
 void LedDigital_IO_Init(void)
 {
-    AD1PCFGL    = 0xFFFF;    // Set analog function pins used for LED's to digital I/O
+    // AD1PCFGL    = 0xFFFF;    // Set analog function pins used for LED's to digital I/O
     
     TRISG       = 0xFC3F;    // Set band G led pins to output
     ODCG        = 0x03C0;    // Set green and blue led to open drain. (Schematic requires these pins to sink current for operation of LED's)
@@ -63,7 +64,7 @@ void Timer1Init(void)
 {
     PR1                 = 0xFFFF;   // Timer period
     T1CONbits.TON       = 1;        // Turn on timer 1.
-    T1CONbits.TCKPS     = 0b11;     // Clock prescale 
+    T1CONbits.TCKPS     = 0b10;     // Clock prescale 
     IFS0bits.T1IF       = 0;        // Reset interrupt flag
     IEC0bits.T1IE       = 1;        // Turn on the timer 1 interrupt.
     IPC0bits.T1IP       = 5;        // 
@@ -72,23 +73,28 @@ void Timer1Init(void)
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
 {
     /*  */
+    ReadPotentiometer();
     
-    if (LATFbits.LATF4 == 0) // if red on
+    if (adc_pot >= threshold) // ADC output > threshold
     {
-        toggle_red();
-        toggle_green();
+        if (LATFbits.LATF4 == 0) // if red on
+        {
+            toggle_red();
+            toggle_green();
+        }
+        else if (LATGbits.LATG8 == 0) // if green on
+        {
+            toggle_green();
+            toggle_blue();
+        }
+        else if (LATGbits.LATG6 == 0) // if blue on
+        {
+            toggle_blue();
+            toggle_red();
+        } 
     }
-    else if (LATGbits.LATG8 == 0) // if green on
-    {
-        toggle_green();
-        toggle_blue();
-    }
-    else if (LATGbits.LATG6 == 0) // if blue on
-    {
-        toggle_blue();
-        toggle_red();
-    } 
     
+   
     counter1++; //debug
             
     IFS0bits.T1IF       = 0;        // Always clear interrupt flag before exit of ISR

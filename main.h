@@ -34,8 +34,9 @@
 
 // TODO Insert appropriate #include <>
 #include "led.h"
+#include "adc.h"
 
-
+ extern int adc_pot;
 // TODO Insert C++ class definitions if appropriate
 
 // TODO Insert declarations

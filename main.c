@@ -43,6 +43,7 @@
 int main(void) 
 {
     OscillatorInit();
+    InitADC();
 
     Led_Cycle(); // Flash LED's on and off cyclically.
     
