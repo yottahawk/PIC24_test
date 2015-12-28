@@ -36,7 +36,7 @@
 #include "led.h"
 #include "adc.h"
 
- extern int adc_pot;
+extern int adc_pot; // global var
 // TODO Insert C++ class definitions if appropriate
 
 // TODO Insert declarations
