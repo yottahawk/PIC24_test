@@ -44,8 +44,8 @@ int main(void)
 {
     OscillatorInit();
     InitADC();
-
-    Led_Cycle(); // Flash LED's on and off cyclically.
+    
+    Led_Cycle_Start();
     
     while(1)
     {

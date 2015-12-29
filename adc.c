@@ -13,7 +13,7 @@ int adc_pot;
 void InitADC(void)
 {
     AD1PCFGLbits.PCFG0  = 0;        // Set AN0 pin as analog
-    AD1CON1             = 0x20E2;   // Off, auto-convert
+    AD1CON1             = 0x20E2;   // Module off, auto-convert
     AD1CON2             = 0;        // AVdd, AVss, int every conversion, MUXA only
     AD1CON3             = 0x1F05;   // 31 Tad auto-sample, Tad = 5*Tcy
     AD1CHS              = 0x0;      // MUXA uses AN0
@@ -27,6 +27,9 @@ void ReadPotentiometer(void)
     AD1CON1bits.SAMP    = 1;         // Start sampling, then auto-convert
     
     while (!AD1CON1bits.DONE);       // Wait
+    if (ADC1BUF0 != 0)
+    {
     adc_pot             = ADC1BUF0;
+    }
 }
 

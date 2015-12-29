@@ -10,8 +10,9 @@
 //initialisations
 int counter1 = 0;
 int threshold =  512;
+int period_new;
 
-void Led_Cycle(void)
+void Led_Cycle_Start(void)
 {
     LedDigital_IO_Init();
     Timer1Init();
@@ -22,7 +23,6 @@ void Led_Cycle(void)
 
 void LedDigital_IO_Init(void)
 {
-    // AD1PCFGL    = 0xFFFF;    // Set analog function pins used for LED's to digital I/O
     
     TRISG       = 0xFC3F;    // Set band G led pins to output
     ODCG        = 0x03C0;    // Set green and blue led to open drain. (Schematic requires these pins to sink current for operation of LED's)
@@ -63,20 +63,22 @@ void toggle_blue(void)
 void Timer1Init(void)
 {
     PR1                 = 0xFFFF;   // Timer period
-    T1CONbits.TON       = 1;        // Turn on timer 1.
     T1CONbits.TCKPS     = 0b10;     // Clock prescale 
     IFS0bits.T1IF       = 0;        // Reset interrupt flag
     IEC0bits.T1IE       = 1;        // Turn on the timer 1 interrupt.
     IPC0bits.T1IP       = 5;        // 
+    
+    T1CONbits.TON       = 1;        // Turn on timer 1.
 }
 
-void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
+void Timer1period(int period)
 {
-    /*  */
-    ReadPotentiometer();
-    
-    if (adc_pot >= threshold) // ADC output > threshold
-    {
+    PR1                 = period;   // Set new period for timer
+}
+
+void Cycle_Flash(void)
+{
+    // if (adc_pot >= threshold) // ADC output > threshold
         if (LATFbits.LATF4 == 0) // if red on
         {
             toggle_red();
@@ -92,9 +94,18 @@ void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
             toggle_blue();
             toggle_red();
         } 
-    }
+}
+
+void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
+{
+    /*  */
+    ReadPotentiometer();
     
-   
+    period_new = adc_pot*63;
+    Timer1period(period_new);
+    
+    Cycle_Flash();
+    
     counter1++; //debug
             
     IFS0bits.T1IF       = 0;        // Always clear interrupt flag before exit of ISR

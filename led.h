@@ -7,10 +7,13 @@
 
 //Function prototypes
 
-void Led_Cycle(void); // Start cyclical flashing of LED's.
+void Led_Cycle_Start(void); // Start cyclical flashing of LED's.
 
-void LedDigital_IO_Init(void); // Sets up the LED IO ports
-void Timer1Init(void); // Start Timer1
+void LedDigital_IO_Init(void);      // Sets up the LED IO ports
+void Timer1Init(void);              // Start Timer1
+void Timer1period(int period);      // Set Timer1 period to new value
+
+void Cycle_Flash(void);
 
 void toggle_red(void);
 void toggle_green(void);
