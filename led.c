@@ -12,13 +12,15 @@ int counter1 = 0;
 int threshold =  512;
 int period_new;
 
+///////////////////////////////////////////////////////////////////////////////
+
+void Led_Cycle_Start(void)
+{
 /*
  * Led_Cycle_Start
  * Initialises the Led's for cycling by setting up the output pin registers, and...
  * ... starting the timer. It also sets an initial output led, RED, ON. 
  */
-void Led_Cycle_Start(void)
-{
     LedDigital_IO_Init();
     Timer1Init();
     
@@ -26,14 +28,13 @@ void Led_Cycle_Start(void)
     LATFbits.LATF5 = 0;
 }
 
+void LedDigital_IO_Init(void)
+{
 /*
  * LedDigital_IO_Init
  * Sets up the TRIS and ODCG registers for the appropriate pins to control the...
  * ... tri-colour led.
- */
-void LedDigital_IO_Init(void)
-{
-    
+ */ 
     TRISG       = 0xFC3F;    // Set band G led pins to output
     ODCG        = 0x03C0;    // Set green and blue led to open drain. (Schematic requires these pins to sink current for operation of LED's)
     
@@ -51,34 +52,40 @@ void LedDigital_IO_Init(void)
     LATFbits.LATF5 = 1;
 }
 
-/*
- Toggles the on/off state of the tri colour LED's.
- */
 void toggle_red(void)
 {
+/*
+ Toggles the red led on/off
+ */
     LATFbits.LATF4 = ~LATFbits.LATF4;
     LATFbits.LATF5 = ~LATFbits.LATF5;
 }
 
 void toggle_green(void)
 {
+/*
+ Toggles the green led on/off
+ */
     LATGbits.LATG8 = ~LATGbits.LATG8;
     LATGbits.LATG9 = ~LATGbits.LATG9;
 }
 
 void toggle_blue(void)
 {
+/*
+ Toggles the blue led on/off
+ */
     LATGbits.LATG6 = ~LATGbits.LATG6;
     LATGbits.LATG7 = ~LATGbits.LATG7;
 }
 
+void Timer1Init(void)
+{
 /*
  * Timer1Init
  * Sets up Timer1 with given period, clock prescaler, and sets the interrupts. 
  * Enables the timer.
  */
-void Timer1Init(void)
-{
     PR1                 = 0xFFFF;   // Timer period
     T1CONbits.TCKPS     = 0b10;     // Clock prescale 
     IFS0bits.T1IF       = 0;        // Reset interrupt flag
@@ -88,6 +95,8 @@ void Timer1Init(void)
     T1CONbits.TON       = 1;        // Turn on timer 1.
 }
 
+void Timer1period(int period)
+{
 /*
  * Timer1period
  * Sets a new value for the Timer1 period register.
@@ -97,37 +106,37 @@ void Timer1Init(void)
  * 
  * Task : rewrite so to reset counter whenever new period is set.
  */
-void Timer1period(int period)
-{
     PR1                 = period;   // Set new period for timer
 }
 
+
+void Cycle_Flash(void)
+{
 /*
  * Cycle_Flash
  * 
  * Switches the led so the next in the cycle is on, and the current led switches off. 
  * The cycle rotates as RED -> GREEN - > BLUE
- */
-void Cycle_Flash(void)
-{
-    // if (adc_pot >= threshold) // ADC output > threshold
-        if (LATFbits.LATF4 == 0) // if red on
-        {
-            toggle_red();
-            toggle_green();
-        }
-        else if (LATGbits.LATG8 == 0) // if green on
-        {
-            toggle_green();
-            toggle_blue();
-        }
-        else if (LATGbits.LATG6 == 0) // if blue on
-        {
-            toggle_blue();
-            toggle_red();
-        } 
+ */    
+    if (LATFbits.LATF4 == 0) // if red on
+    {
+        toggle_red();
+        toggle_green();
+    }
+    else if (LATGbits.LATG8 == 0) // if green on
+    {
+        toggle_green();
+        toggle_blue();
+    }
+    else if (LATGbits.LATG6 == 0) // if blue on
+    {
+        toggle_blue();
+        toggle_red();
+    } 
 }
 
+void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
+{
 /*
  * _T1Interrupt
  * Primary interrupt vector name for PIC24F for "TMR1 Timer 1 expired"
@@ -138,9 +147,6 @@ void Cycle_Flash(void)
  * If necessary, interrupts can be disabled while these operations are run. To see how..
  * .. see "XC16 C Compiler User Guide, pg. 220" for a starting example.
  */
-void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
-{
-    /*  */
     ReadPotentiometer();
     
     period_new = adc_pot*63;

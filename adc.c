@@ -10,13 +10,13 @@
 //initialisations
 int adc_pot;
 
-/*
+void InitADC(void)
+{
+ /*
  * InitADC
  * Sets up the ADC to read the potentiometer.
  * 
- */
-void InitADC(void)
-{
+ */   
     AD1PCFGLbits.PCFG0  = 0;        // Set AN0 pin as analog
     AD1CON1             = 0x20E2;   // Module off, auto-convert
     AD1CON2             = 0;        // AVdd, AVss, int every conversion, MUXA only
@@ -27,6 +27,9 @@ void InitADC(void)
     AD1CON1bits.ADON    = 1;        // Turn on ADC module
 }
 
+
+void ReadPotentiometer(void)
+{
 /*
  * ReadPotentiometer
  * Manually starts the sampling, and allows the auto-convert timer to control conversion.
@@ -35,8 +38,6 @@ void InitADC(void)
  * If ADC1BUF0 == 0 then do nothing. -> prevents the timer from stopping.
  * 
  */
-void ReadPotentiometer(void)
-{
     AD1CON1bits.SAMP    = 1;         // Start sampling, then auto-convert
     
     while (!AD1CON1bits.DONE);       // Wait

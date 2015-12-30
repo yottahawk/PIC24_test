@@ -40,8 +40,9 @@ extern int adc_pot; // global var
 // TODO Insert C++ class definitions if appropriate
 
 // TODO Insert declarations
-void OscillatorInit(void);
-void PinSelectInit(void);
+
+void OscillatorInit(void);      // Starts the oscillator
+void PinSelectInit(void);       // Sets up any remappable pins
 
 // Comment a function and leverage automatic documentation with slash star star
 /**

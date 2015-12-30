@@ -54,21 +54,23 @@ int main(void)
     return 0;
 }
 
+
+void OscillatorInit(void)
+{
 /*
  * OscillatorInit
  * Enables the oscillator.
  */
-void OscillatorInit(void)
-{
     OSCCON      = 0x3302;    // 0b11001100000010 - Enable secondary oscillator, use HS oscillator
 }
 
+
+void PinSelectInit(void)
+{
 /*
  * PinSelectInit
  * Sets the appropriate pins required for peripherals on the pin select.
  */
-void PinSelectInit(void)
-{
     
 }
 
