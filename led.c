@@ -12,6 +12,11 @@ int counter1 = 0;
 int threshold =  512;
 int period_new;
 
+/*
+ * Led_Cycle_Start
+ * Initialises the Led's for cycling by setting up the output pin registers, and...
+ * ... starting the timer. It also sets an initial output led, RED, ON. 
+ */
 void Led_Cycle_Start(void)
 {
     LedDigital_IO_Init();
@@ -21,6 +26,11 @@ void Led_Cycle_Start(void)
     LATFbits.LATF5 = 0;
 }
 
+/*
+ * LedDigital_IO_Init
+ * Sets up the TRIS and ODCG registers for the appropriate pins to control the...
+ * ... tri-colour led.
+ */
 void LedDigital_IO_Init(void)
 {
     
@@ -41,7 +51,9 @@ void LedDigital_IO_Init(void)
     LATFbits.LATF5 = 1;
 }
 
-
+/*
+ Toggles the on/off state of the tri colour LED's.
+ */
 void toggle_red(void)
 {
     LATFbits.LATF4 = ~LATFbits.LATF4;
@@ -60,6 +72,11 @@ void toggle_blue(void)
     LATGbits.LATG7 = ~LATGbits.LATG7;
 }
 
+/*
+ * Timer1Init
+ * Sets up Timer1 with given period, clock prescaler, and sets the interrupts. 
+ * Enables the timer.
+ */
 void Timer1Init(void)
 {
     PR1                 = 0xFFFF;   // Timer period
@@ -71,11 +88,26 @@ void Timer1Init(void)
     T1CONbits.TON       = 1;        // Turn on timer 1.
 }
 
+/*
+ * Timer1period
+ * Sets a new value for the Timer1 period register.
+ * 
+ * This can be called at any point, and will change the count comparator for the timer no matter what point through the cycle the current count is.
+ * If the current count is very close to the new period, the interrupt may trigger very quickly and cause issues. 
+ * 
+ * Task : rewrite so to reset counter whenever new period is set.
+ */
 void Timer1period(int period)
 {
     PR1                 = period;   // Set new period for timer
 }
 
+/*
+ * Cycle_Flash
+ * 
+ * Switches the led so the next in the cycle is on, and the current led switches off. 
+ * The cycle rotates as RED -> GREEN - > BLUE
+ */
 void Cycle_Flash(void)
 {
     // if (adc_pot >= threshold) // ADC output > threshold
@@ -96,6 +128,16 @@ void Cycle_Flash(void)
         } 
 }
 
+/*
+ * _T1Interrupt
+ * Primary interrupt vector name for PIC24F for "TMR1 Timer 1 expired"
+ * 
+ * To reduce latency, ISR should avoid calling any functions. Any processing should take place in the main() function. 
+ * The ISR can interact with the main() processing using global variables, for example. 
+ * These can then be operated on within the main loop, using atomic operations where necessary. 
+ * If necessary, interrupts can be disabled while these operations are run. To see how..
+ * .. see "XC16 C Compiler User Guide, pg. 220" for a starting example.
+ */
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void) // uses ISR macro
 {
     /*  */
